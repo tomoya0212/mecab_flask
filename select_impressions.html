@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../static/js/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="../static/js/ajax_lab.js"></script>
+    <!-- Load c3.css -->
+    <link href="../static/c3-0.7.20/c3.css" rel="stylesheet" type="text/css">
+    <!-- Load d3.js and c3.js -->
+    <script src="../static/js/d3.v5.min.js" charset="UTF-8"></script>
+    <script src="../static/js/c3.min.js"></script>
+    <title>感想文分類システム-選択</title>
+    <script type="text/javascript">
+        $(function(){
+            $("#lab_select_name option[value='{{select_lab_name}}']").prop('selected', true);
+            $("#year_select_id option[value='{{select_year_id}}']").prop('selected', true);
+        })
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12"></div>
+            <div class="offset-1 col-10">
+                <form action="/select" name="search_form" method="POST">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                {% if lab_list != None %}
+                                    <label for="lab_select_name">研究室</label>
+                                    <select name="lab" id="lab_select_name" class="form-control" onchange="ajax_lab()">
+                                        {% for record in lab_list %}
+                                            <option value="{{record.lab_name}}">{{ record.lab_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                {% if year_list != None %}
+                                    <label for="year_select_id">年</label>
+                                    <select name="year" id="year_select_id" class="form-control">
+                                        {% for record in year_list %}
+                                            <option value="{{record.year}}">{{ record.year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group text-right">
+                        <button type="submit" class="btn btn-primary">検索</button>
+                    </div>
+                </form>
+                <!-- {% if impressions_list != None %}
+                    <div class="search_result_area">
+                        <table class="table table-striped table-bordered table-hover table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">感想内容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in impressions_list %}
+                                    <tr>
+                                        <td scope="row" style="width: 50%">
+                                        {% for text in record %}
+                                            <span>{{ text }}</span>
+                                        {% endfor %}        
+                                        </td>
+                                        
+                                        <!--<td scope="row" style="width: 50%">{{ record }}</td>-->
+                                    <!-- </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %} -->
+                <!-- {% if rate %}
+                    <p class="font-weight-bold text-primary">ポジティブ : {{ rate[0] }}%</p>
+                    <p class="font-weight-bold text-danger">ネガティブ : {{ rate[1] }}%</p>
+                {% endif %} -->
+                {% if posi_list %}
+                    <p class="font-weight-bold text-primary">ポジティブ</p>
+                    {% for record in posi_list %}
+                        <p>{{ record }}</p>
+                    {% endfor %}
+                {% endif %}
+                {% if nega_list %}
+                    <p class="font-weight-bold text-danger">ネガティブ</p>
+                    {% for record in nega_list %}
+                        <p>{{ record }}</p>
+                    {% endfor %}
+                {% endif %}
+                {% if len_posi != None and len_nega != None %}
+                    <div id="chart"></div>
+                    <script>
+                        var len_posi = {{ len_posi | tojson }};
+                        var len_nega = {{ len_nega | tojson }};
+                        var chart = c3.generate({
+                            bindto:'#chart',
+                            data:{
+                                columns:[
+                                    ['ポジティブ',len_posi],
+                                    ['ネガティブ',len_nega],
+                                ],
+                                type:'pie'
+                            }
+                        });
+                    </script>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
